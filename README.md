@@ -1,4 +1,4 @@
-# Smat-home
+# Smart-Home
 Arduino smart home 
 
 
