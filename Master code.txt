@@ -1,0 +1,206 @@
+#include <Servo.h>
+#include <LiquidCrystal.h>
+#include <Wire.h>
+String kelime;
+int arr[3];
+int deger;
+int x;
+int gas_val;
+int temp_val;
+int ldr_val;
+int alarm_state;
+int smartmode_state;
+unsigned long zaman;
+Servo serGarage;
+Servo serDoor;
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+ 
+void setup()
+{
+  serGarage.attach(10);
+  serDoor.attach(9);
+  lcd.begin(16, 2);
+  Wire.begin();
+  Serial.begin(9600);
+  lcd.print("WELCOME!!!");
+  delay(1500);
+  lcd.clear();
+  serDoor.write(0);
+  serGarage.write(0);
+  
+}
+
+void loop()
+{  
+  zaman = millis()/1000;  //initial start time
+  if(zaman%2==0)update_lcd();
+  
+       
+  if(Serial.available()) 
+ {//***    
+  kelime = Serial.readString();
+    Serial.println(kelime);
+    if(kelime=="open the door"){
+    Serial.println("door is opening");
+    serDoor.write(90);
+    delay(50);
+    
+    }
+    else if(kelime=="close the door"){
+    Serial.println("door is closing");
+    serDoor.write(0);
+    delay(50);
+    }
+    else if(kelime=="smart mode"){
+     Serial.println("smart mode activated!!!");
+     smartmode_state=1; 
+     Wire.beginTransmission(1);  
+     Wire.write('s');
+     Wire.endTransmission(); 
+    }    
+    else if(kelime=="normal mode"){
+     Serial.println("normal activated!!!");
+     smartmode_state=0; 
+     Wire.beginTransmission(1);  
+     Wire.write('n');
+     Wire.endTransmission(); 
+    }
+    else if(kelime=="close light"){
+     Serial.println("light closed!!!");
+     smartmode_state=0; 
+     Wire.beginTransmission(1);  
+     Wire.write('c');
+     Wire.endTransmission(); 
+    }
+    else if(kelime=="open light"){
+     Serial.println("light opened!!!");
+     smartmode_state=0; 
+     Wire.beginTransmission(1);  
+     Wire.write('o');
+     Wire.endTransmission(); 
+    }
+    else if(kelime=="print values"){     
+     gas_val=read();       
+     temp_val=read();       
+     ldr_val=read();
+      
+     lcd.clear();    
+     lcd.print("gas:");
+     lcd.print(gas_val);
+     lcd.print(" "); 
+     lcd.print("temp:");
+     lcd.print(temp_val);
+     lcd.setCursor(0, 1); 
+     lcd.print("ldr:");
+     lcd.print(ldr_val);       
+    }
+     else if(kelime=="gas value"){     
+     gas_val=read();     
+     temp_val=read();      
+     ldr_val=read();
+     lcd.clear();
+     lcd.print("gas val:");
+     lcd.print(gas_val);
+     delay(1500);
+     lcd.clear();
+    }
+    else if(kelime=="temp value"){     
+     gas_val=read();     
+     temp_val=read();      
+     ldr_val=read();
+     lcd.clear();
+     lcd.print("temp val:");
+     lcd.print(temp_val);
+     delay(1500);
+     lcd.clear(); 
+    }
+    else if(kelime=="ldr value"){     
+     gas_val=read();     
+     temp_val=read();      
+     ldr_val=read();
+     lcd.clear(); 
+     lcd.print("ldr val:");
+     lcd.print(ldr_val);
+     delay(1500);
+     lcd.clear(); 
+    }
+    
+    else if(kelime == "open the garage"){
+      Serial.println("garage is opening");
+      serGarage.write(90);
+      delay(50);
+    }
+    else if(kelime == "close the garage"){
+      Serial.println("garage is closing");
+      serGarage.write(0);
+      delay(50);
+    }
+    else if(kelime == "alarm mode"){
+     Serial.println("Alarm mode: ON!!!");
+     alarm_state=1; 
+     Wire.beginTransmission(1);  
+     Wire.write('a');
+     Wire.endTransmission(); 
+      
+    }
+     else if(kelime == "close alarm mode"){
+     Serial.println("Alarm mode: OFF!!!");
+     alarm_state=0;  
+     Wire.beginTransmission(1);  
+     Wire.write('b');
+     Wire.endTransmission();       
+    }
+    
+ }//***
+  
+ 
+    
+}
+
+int read() {
+  
+  Wire.requestFrom(1, 1);  
+  while(Wire.available() == 0);  
+  x = Wire.read();   
+  return x;
+}
+
+void update_lcd(){
+   
+   zaman=0;
+   gas_val=read();       
+   temp_val=read();       
+   ldr_val=read();      
+   lcd.clear();    
+   lcd.print("gas:");
+   lcd.print(gas_val);
+   lcd.setCursor(0, 1);
+   lcd.print("temp:");
+   lcd.print(temp_val);
+   lcd.setCursor(10, 1);
+   lcd.print("A:");
+   if(alarm_state==0)lcd.print("OFF");
+   if(alarm_state==1)lcd.print("ON");
+   lcd.setCursor(7, 0);
+   if(smartmode_state==0)lcd.print("Smart:OFF");
+   if(smartmode_state==1)lcd.print("Smart:ON");
+   delay(1000);  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
