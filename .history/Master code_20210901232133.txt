@@ -6,7 +6,6 @@ int arr[3];
 int deger;
 int x;
 int gas_val;
-DENEMEMEMEMMEEMEEM
 int temp_val;
 int ldr_val;
 int alarm_state;
